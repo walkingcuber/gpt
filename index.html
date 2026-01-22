@@ -1,111 +1,39 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>ChatGPT Web Demo</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .chat-container {
-            width: 600px;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            padding: 16px;
-            border-bottom: 1px solid #ddd;
-            font-weight: bold;
-        }
-
-        #chatbox {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .message {
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        .user {
-            color: #1a73e8;
-        }
-
-        .assistant {
-            color: #188038;
-        }
-
-        .chat-input {
-            display: flex;
-            border-top: 1px solid #ddd;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            outline: none;
-            font-size: 14px;
-        }
-
-        #sendBtn {
-            padding: 0 20px;
-            border: none;
-            background: #1a73e8;
-            color: white;
-            cursor: pointer;
-        }
-
-        #sendBtn:hover {
-            background: #1558b0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>公開資訊 AI 摘要系統</title>
+  <style>
+    body { font-family: Arial; padding: 40px; }
+    input { padding: 8px; width: 280px; }
+    button { padding: 8px 16px; }
+    #result { margin-top: 20px; white-space: pre-line; }
+  </style>
 </head>
-
 <body>
 
-  <!-- 你的聊天 UI -->
-  <div class="chat-container">
-    ...
-  </div>
+<h2>公開人物／姓名 AI 摘要</h2>
 
-  <!-- 你的聊天 JavaScript（ChatGPT 那段） -->
-  <script>
-    // chat UI + fetch Firebase Functions
-  </script>
+<input id="name" placeholder="輸入姓名">
+<button onclick="analyze()">分析</button>
 
-  <!-- ✅ Firebase SDK（只初始化） -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+<div id="result"></div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBLwwFnEPUkSe5DL2Hyq4YNdhtOecsfgK4",
-      authDomain: "gptai-ae918.firebaseapp.com",
-      projectId: "gptai-ae918",
-      storageBucket: "gptai-ae918.firebasestorage.app",
-      messagingSenderId: "520594577562",
-      appId: "1:520594577562:web:a62d3a590a9e99eddca723",
-      measurementId: "G-T6PZE387ZN"
-    };
+<script>
+async function analyze() {
+  const name = document.getElementById("name").value;
+  document.getElementById("result").innerText = "分析中，請稍候…";
 
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+  const res = await fetch("https://你的後端網址/api/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name })
+  });
 
-    console.log("Firebase SDK 初始化完成");
-  </script>
+  const data = await res.json();
+  document.getElementById("result").innerText = data.summary;
+}
+</script>
 
 </body>
 </html>
