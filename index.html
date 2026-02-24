@@ -1,39 +1,226 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <title>公開資訊 AI 摘要系統</title>
-  <style>
-    body { font-family: Arial; padding: 40px; }
-    input { padding: 8px; width: 280px; }
-    button { padding: 8px 16px; }
-    #result { margin-top: 20px; white-space: pre-line; }
-  </style>
-</head>
-<body>
+import React, { useState } from 'react';
+import { 
+  Terminal, 
+  CheckCircle2, 
+  XCircle, 
+  ChevronRight, 
+  Code2, 
+  Layers, 
+  Search, 
+  RefreshCcw,
+  BookOpen
+} from 'lucide-react';
 
-<h2>公開人物／姓名 AI 摘要</h2>
+const App = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [score, setScore] = useState(0);
 
-<input id="name" placeholder="輸入姓名">
-<button onclick="analyze()">分析</button>
+  const challenges = [
+    {
+      title: "關卡一：基地台覆蓋 (二分搜尋)",
+      difficulty: "APCS P3 難度",
+      concept: "Binary Search / Greedy",
+      description: "在檢查直徑 d 是否能覆蓋所有住戶時，若在位置 p 放下基地台，該基地台最遠能覆蓋到哪裡？",
+      code: `def can_cover(d, k, houses):
+    count = 0
+    last_covered = -1
+    for p in houses:
+        if p > last_covered:
+            count += 1
+            # 這裡應該填入什麼？
+            last_covered = _______ 
+    return count <= k`,
+      options: [
+        { id: 1, text: "p + d", correct: true, feedback: "正確！因為基地台可以放在住戶 p 的位置（或稍微右邊），使其覆蓋範圍延伸到 p + d。" },
+        { id: 2, text: "p + d / 2", correct: false, feedback: "不對喔。雖然基地台半徑是 d/2，但我們可以選擇將基地台放在 p + d/2 處，這樣範圍就能達到 p + d。" },
+        { id: 3, text: "houses[-1]", correct: false, feedback: "這是最後一個住戶的位置，與當前基地台覆蓋範圍無關。" }
+      ]
+    },
+    {
+      title: "關卡二：程式碼解析 (Stack 漏洞)",
+      difficulty: "APCS P2 難度",
+      concept: "Stack / Error Handling",
+      description: "這段檢查括號的程式碼，如果輸入字串只有一個右括號 \")\"，為什麼會當機？",
+      code: `if (c == ')' && st.top() != '(') return false;
+// ... 
+st.pop();`,
+      options: [
+        { id: 1, text: "變數型別錯誤", correct: false, feedback: "型別是正確的，問題出在邏輯順序。" },
+        { id: 2, text: "堆疊為空時呼叫 top() 會出錯", correct: true, feedback: "賓果！當 stack 為空時呼叫 .top() 會引發 runtime error。應先檢查 !st.empty()。" },
+        { id: 3, text: "記憶體不足", correct: false, feedback: "這只是一個括號，不至於讓記憶體耗盡。" }
+      ]
+    },
+    {
+      title: "關卡三：秘密差 (字串跳格處理)",
+      difficulty: "APCS P1 難度",
+      concept: "String Slicing",
+      description: "在 Python 中，若要快速取得字串 s 中索引值為 0, 2, 4... 的所有字元（奇數位），哪種切片最合適？",
+      code: `X = "123456"
+# 目標：取得 "135"`,
+      options: [
+        { id: 1, text: "s[::2]", correct: true, feedback: "正確！[start:stop:step] 語法中，step 設為 2 即可每隔一個取一個。" },
+        { id: 2, text: "s[1::2]", correct: false, feedback: "這會取得索引 1, 3, 5... 的字元（即 \"246\"）。" },
+        { id: 3, text: "s[::-1]", correct: false, feedback: "這是用來將字串反轉的技巧。" }
+      ]
+    }
+  ];
 
-<div id="result"></div>
+  const handleOptionSelect = (option) => {
+    if (showFeedback) return;
+    setSelectedOption(option);
+    setShowFeedback(true);
+    if (option.correct) setScore(score + 1);
+  };
 
-<script>
-async function analyze() {
-  const name = document.getElementById("name").value;
-  document.getElementById("result").innerText = "分析中，請稍候…";
+  const nextChallenge = () => {
+    setSelectedOption(null);
+    setShowFeedback(false);
+    setCurrentStep(currentStep + 1);
+  };
 
-  const res = await fetch("https://你的後端網址/api/search", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name })
-  });
+  const resetQuiz = () => {
+    setCurrentStep(0);
+    setSelectedOption(null);
+    setShowFeedback(false);
+    setScore(0);
+  };
 
-  const data = await res.json();
-  document.getElementById("result").innerText = data.summary;
-}
-</script>
+  const currentChallenge = challenges[currentStep];
 
-</body>
-</html>
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+          <div className="flex items-center gap-3">
+            <Terminal className="text-emerald-400 w-8 h-8" />
+            <h1 className="text-2xl font-bold tracking-tight">APCS 互動實戰挑戰</h1>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-slate-400">目前分數</div>
+            <div className="text-xl font-mono text-emerald-400">{score} / {challenges.length}</div>
+          </div>
+        </div>
+
+        {currentStep < challenges.length ? (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Challenge Info */}
+            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+              <div className="flex gap-2 mb-4">
+                <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded border border-emerald-500/30">
+                  {currentChallenge.difficulty}
+                </span>
+                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded border border-blue-500/30">
+                  {currentChallenge.concept}
+                </span>
+              </div>
+              <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-slate-400" />
+                {currentChallenge.title}
+              </h2>
+              <p className="text-slate-300 mb-6 leading-relaxed">
+                {currentChallenge.description}
+              </p>
+
+              {/* Code Block */}
+              <div className="bg-slate-950 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto border border-slate-700">
+                <div className="flex items-center gap-2 mb-2 text-slate-500">
+                  <Code2 className="w-4 h-4" />
+                  <span>Snippet</span>
+                </div>
+                <pre className="text-emerald-300">
+                  <code>{currentChallenge.code}</code>
+                </pre>
+              </div>
+
+              {/* Options */}
+              <div className="grid gap-3">
+                {currentChallenge.options.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleOptionSelect(option)}
+                    disabled={showFeedback}
+                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
+                      showFeedback
+                        ? option.correct
+                          ? 'bg-emerald-500/20 border-emerald-500 text-emerald-100'
+                          : selectedOption?.id === option.id
+                            ? 'bg-red-500/20 border-red-500 text-red-100'
+                            : 'bg-slate-800/50 border-slate-700 opacity-50'
+                        : 'bg-slate-700/50 border-slate-600 hover:border-emerald-500 hover:bg-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{option.text}</span>
+                      {showFeedback && option.correct && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
+                      {showFeedback && selectedOption?.id === option.id && !option.correct && <XCircle className="w-5 h-5 text-red-400" />}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Feedback Section */}
+              {showFeedback && (
+                <div className="mt-6 p-4 rounded-lg bg-slate-900/50 border border-slate-700 animate-in zoom-in-95 duration-300">
+                  <p className={`text-sm ${selectedOption?.correct ? 'text-emerald-400' : 'text-red-400'} font-medium mb-1`}>
+                    {selectedOption?.correct ? '太棒了！' : '哎呀，再想想看...'}
+                  </p>
+                  <p className="text-slate-300 text-sm italic">{selectedOption?.feedback}</p>
+                  <button
+                    onClick={nextChallenge}
+                    className="mt-4 w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    {currentStep === challenges.length - 1 ? '查看結果' : '下一關'}
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Results Screen */
+          <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-700 shadow-2xl animate-in zoom-in-95 duration-500">
+            <div className="inline-block p-4 bg-emerald-500/20 rounded-full mb-6">
+              <CheckCircle2 className="w-16 h-16 text-emerald-400" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">挑戰完成！</h2>
+            <p className="text-slate-400 mb-8">你的總分是：<span className="text-emerald-400 font-mono text-2xl">{score} / {challenges.length}</span></p>
+            
+            <div className="max-w-xs mx-auto space-y-3">
+              <button
+                onClick={resetQuiz}
+                className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-semibold transition-all"
+              >
+                <RefreshCcw className="w-5 h-5" />
+                重新挑戰
+              </button>
+              <div className="text-xs text-slate-500 mt-4">
+                繼續努力！APCS 的核心在於細心與邏輯的嚴密性。
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer info */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-500 text-sm">
+          <div className="flex flex-col items-center p-4 bg-slate-800/30 rounded-lg border border-slate-800">
+            <Search className="w-5 h-5 mb-2 text-emerald-500/50" />
+            <span>精準搜尋 (Binary Search)</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-slate-800/30 rounded-lg border border-slate-800">
+            <Layers className="w-5 h-5 mb-2 text-blue-500/50" />
+            <span>堆疊邏輯 (Stack)</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-slate-800/30 rounded-lg border border-slate-800">
+            <Code2 className="w-5 h-5 mb-2 text-purple-500/50" />
+            <span>高效實作 (Implementation)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
