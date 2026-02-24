@@ -11,6 +11,14 @@ import {
   BookOpen
 } from 'lucide-react';
 
+/**
+ * 部署至 GitHub Pages 說明：
+ * 1. 確保你的專案 package.json 中加入了 "homepage": "https://<your-username>.github.io/<repo-name>"
+ * 2. 使用 npm run build 生成產物。
+ * 3. 推薦使用 gh-pages 套件：npm install gh-pages --save-dev
+ * 4. 在 scripts 中加入 "predeploy": "npm run build", "deploy": "gh-pages -d build"
+ */
+
 const App = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -128,7 +136,7 @@ st.pop();`,
               <div className="bg-slate-950 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto border border-slate-700">
                 <div className="flex items-center gap-2 mb-2 text-slate-500">
                   <Code2 className="w-4 h-4" />
-                  <span>Snippet</span>
+                  <span>程式碼片段</span>
                 </div>
                 <pre className="text-emerald-300">
                   <code>{currentChallenge.code}</code>
