@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIXEL_TERMINAL_V3.5_STABLE_SYNTH</title>
+    <title>PIXEL_TERMINAL_V7.0_FULLSCREEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap');
 
         :root {
-            --pixel-green: #00ff41;
-            --pixel-green-dim: #004411;
-            --pixel-green-glow: rgba(0, 255, 65, 0.4);
+            /* 預設經典綠 */
+            --main-color: #00ff41;
+            --main-dim: #004411;
+            --main-glow: rgba(0, 255, 65, 0.4);
             --bg-black: #050505;
         }
 
+        /* 主題樣式定義 */
+        body.theme-green { --main-color: #00ff41; --main-dim: #004411; --main-glow: rgba(0, 255, 65, 0.4); }
+        body.theme-red { --main-color: #ff3131; --main-dim: #440000; --main-glow: rgba(255, 49, 49, 0.4); }
+        body.theme-blue { --main-color: #31d7ff; --main-dim: #002244; --main-glow: rgba(49, 215, 255, 0.4); }
+        body.theme-amber { --main-color: #ffb000; --main-dim: #442e00; --main-glow: rgba(255, 176, 0, 0.4); }
+
         body {
             background-color: #000;
-            color: var(--pixel-green);
+            color: var(--main-color);
             font-family: 'DotGothic16', 'VT323', monospace;
             overflow: hidden;
             height: 100vh;
@@ -25,17 +32,25 @@
             align-items: center;
             justify-content: center;
             margin: 0;
+            transition: color 0.3s ease;
         }
 
         .crt-monitor {
             position: relative;
             width: 100%;
-            max-width: 750px;
+            max-width: 650px;
             background: #0a0a0a;
             border: 15px solid #2a2a2a;
             border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 0 0 5px #1a1a1a, inset 0 0 100px rgba(0, 255, 65, 0.1);
+            padding: 40px;
+            box-shadow: 0 0 0 5px #1a1a1a, inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 全螢幕時的調整 */
+        :fullscreen .crt-monitor {
+            max-width: 900px;
+            border: none;
+            box-shadow: none;
         }
 
         .crt-monitor::after {
@@ -51,303 +66,213 @@
             opacity: 0.7;
         }
 
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
+        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
         .scanline-effect {
-            width: 100%;
-            height: 100px;
-            z-index: 11;
-            background: linear-gradient(0deg, rgba(0, 255, 65, 0) 0%, rgba(0, 255, 65, 0.05) 50%, rgba(0, 255, 65, 0) 100%);
-            opacity: 0.1;
-            position: absolute;
-            bottom: 100%;
-            animation: scanline 8s linear infinite;
+            width: 100%; height: 100px; z-index: 11;
+            background: linear-gradient(0deg, transparent 0%, var(--main-glow) 50%, transparent 100%);
+            opacity: 0.1; position: absolute; bottom: 100%; animation: scanline 8s linear infinite;
         }
 
-        .pixel-text {
-            text-shadow: 0 0 10px var(--pixel-green-glow);
-            letter-spacing: 2px;
-        }
+        .pixel-text { text-shadow: 0 0 10px var(--main-glow); letter-spacing: 2px; }
 
         .btn-pixel {
-            background: var(--pixel-green-dim);
-            border: 3px solid var(--pixel-green);
-            color: var(--pixel-green);
-            padding: 8px 16px;
-            font-size: 1rem;
-            transition: all 0.1s;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 4px 4px 0px var(--pixel-green);
-            position: relative;
+            background: var(--main-dim); border: 2px solid var(--main-color);
+            color: var(--main-color); padding: 8px 16px; transition: all 0.1s;
+            cursor: pointer; text-transform: uppercase; box-shadow: 3px 3px 0px var(--main-color);
+            position: relative; font-weight: bold;
         }
 
-        .btn-pixel:hover {
-            background: var(--pixel-green);
-            color: #000;
-            box-shadow: 0px 0px 15px var(--pixel-green);
-        }
+        .btn-pixel:hover { background: var(--main-color); color: #000; box-shadow: 0px 0px 10px var(--main-color); }
+        .btn-pixel:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--main-color); }
 
-        .btn-pixel:active {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px var(--pixel-green);
-        }
+        .pixel-border { border: 2px solid var(--main-color); background: rgba(0, 0, 0, 0.3); transition: border-color 0.3s; }
 
-        .pixel-border {
-            border: 2px solid var(--pixel-green);
-            background: rgba(0, 255, 65, 0.05);
-        }
+        .progress-block { display: inline-block; width: 14px; height: 24px; margin-right: 3px; background: var(--main-dim); transition: background 0.3s; }
+        .progress-block.active { background: var(--main-color); box-shadow: 0 0 8px var(--main-glow); }
 
-        .progress-block {
-            display: inline-block;
-            width: 12px;
-            height: 20px;
-            margin-right: 2px;
-            background: var(--pixel-green-dim);
-        }
-
-        .progress-block.active {
-            background: var(--pixel-green);
-            box-shadow: 0 0 8px var(--pixel-green);
-        }
-
-        .cursor {
-            width: 10px;
-            height: 18px;
-            background: var(--pixel-green);
-            display: inline-block;
-            animation: blink 0.6s steps(1) infinite;
-            vertical-align: middle;
-        }
-
+        .cursor { width: 12px; height: 20px; background: var(--main-color); display: inline-block; animation: blink 0.6s steps(1) infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--pixel-green);
-            width: 100%;
-            font-family: inherit;
+        input, select { background: transparent; border: none; outline: none; color: var(--main-color); font-family: inherit; }
+        
+        /* 設置介面樣式 */
+        #settings-overlay {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            right: 40px;
+            width: 250px;
+            background: #0a0a0a;
+            border: 3px solid var(--main-color);
+            padding: 15px;
+            z-index: 50;
+            box-shadow: 0 0 20px #000;
         }
 
-        #ai-quote {
-            min-height: 2.5em;
-            font-style: italic;
-        }
-
-        .bar { width: 3px; background: var(--pixel-green); margin-right: 2px; height: 10px; display: inline-block; }
-        .playing .bar { animation: wave 0.5s infinite alternate; }
-        @keyframes wave { from { height: 4px; } to { height: 15px; } }
+        .theme-dot { width: 20px; height: 20px; border: 1px solid #fff; cursor: pointer; border-radius: 2px; }
     </style>
 </head>
-<body>
-    <div class="crt-monitor">
+<body class="theme-green" id="terminal-body">
+    <div class="crt-monitor" id="main-monitor">
         <div class="scanline-effect"></div>
         
-        <!-- 頂部資訊欄 -->
-        <div class="flex justify-between border-b-2 border-[#00ff41] pb-2 mb-4 pixel-text text-sm">
+        <!-- 頂部狀態 -->
+        <div class="flex justify-between border-b-2 border-current pb-2 mb-6 pixel-text text-sm">
             <div>
-                <p>> SYS_CORE: V3.5_OFFLINE_READY</p>
-                <p>> MODE: <span id="status-text">STANDBY</span></p>
+                <p>> SYSTEM: FULLSCREEN_V7</p>
+                <p>> THEME: <span id="theme-name">CLASSIC_GREEN</span></p>
             </div>
             <div class="text-right">
-                <p id="current-date">DATE: 1999-01-01</p>
-                <p>AUDIO: INTERNAL_SYNTH</p>
+                <p id="current-date">DATE: 2024-03-21</p>
+                <p>CLOCK: <span id="current-time">00:00:00</span></p>
             </div>
         </div>
 
-        <!-- AI 任務輸入區域 -->
-        <div class="mb-4 pixel-border p-3 text-xs">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-white bg-[#00ff41] px-1 text-black font-bold">TASK_INPUT</span>
-                <input id="task-input" type="text" placeholder="輸入任務（例如：撰寫代碼）..." maxlength="50">
-                <button id="ai-split-btn" class="text-xs border border-[#00ff41] px-2 hover:bg-[#00ff41] hover:text-black transition-colors">✨ AI 拆解</button>
-            </div>
-            <div id="sub-tasks" class="grid grid-cols-2 gap-x-4 opacity-70">
-                <span>[ ] 等待指令序列...</span>
-                <span>[ ] 等待指令序列...</span>
+        <!-- 任務輸入 -->
+        <div class="mb-6 pixel-border p-3">
+            <div class="flex items-center gap-3">
+                <span class="text-black bg-[var(--main-color)] px-2 font-bold text-xs">TASK</span>
+                <input id="task-input" type="text" placeholder="輸入目標代碼..." maxlength="40" class="text-sm w-full">
             </div>
         </div>
 
-        <!-- 計時器中心 -->
-        <div class="text-center my-6">
-            <div id="ai-quote" class="text-xs mb-2 opacity-80 px-4">"系統已就緒，所有本地模組載入完畢。"</div>
-            <div id="timer-display" class="text-7xl md:text-8xl font-bold pixel-text">25:00</div>
-            <div id="timer-label" class="text-lg opacity-60 mt-1 font-bold tracking-widest">--- TASK_UNIT_25 ---</div>
+        <!-- 計時器 -->
+        <div class="text-center my-8">
+            <div id="timer-display" class="text-8xl font-bold pixel-text">25:00</div>
+            <div id="timer-label" class="text-sm opacity-60 mt-2 font-bold tracking-[0.4em]">--- WORK_SESSION ---</div>
         </div>
 
-        <!-- 音頻視覺化與進度條 -->
-        <div class="mb-6">
-             <div class="flex justify-between items-center text-xs mb-1">
-                <div id="audio-visualizer" class="flex items-end h-4">
-                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                </div>
-                <div class="flex-grow px-2 truncate opacity-60">SIGNAL: MOZART_SYNTH_01</div>
+        <!-- 進度條 -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center text-[10px] mb-2">
+                <span>PROGRESS_MATRIX</span>
                 <span id="progress-percent">0%</span>
             </div>
             <div id="progress-matrix" class="flex flex-wrap gap-1 justify-center"></div>
         </div>
 
-        <!-- 控制指令 -->
-        <div class="flex justify-center gap-8 mb-6">
-            <button id="start-btn" class="btn-pixel">RUN</button>
-            <button id="reset-btn" class="btn-pixel" style="border-color: #880000; color: #ff0000; box-shadow: 4px 4px 0px #880000;">KILL</button>
+        <!-- 主控制鈕 -->
+        <div class="flex justify-center gap-6 mb-4">
+            <button id="start-btn" class="btn-pixel w-28">RUN</button>
+            <button id="reset-btn" class="btn-pixel w-28" style="border-color:#666; color:#666; box-shadow:3px 3px 0px #333;">RESET</button>
         </div>
 
-        <!-- 日誌輸出 -->
-        <div class="bg-black p-3 pixel-border h-24 overflow-hidden text-xs opacity-90">
-            <div id="logs" class="font-mono">
-                <p>> 核心系統啟動成功...</p>
-                <p>> 檢測到網路異常，已切換至 100% 本地合成模式 <span class="cursor"></span></p>
+        <!-- 底部裝飾與設置入口 -->
+        <div class="flex justify-between items-end mt-4">
+            <div class="bg-black p-2 pixel-border h-20 w-2/3 overflow-hidden text-[10px] opacity-80">
+                <div id="logs" class="font-mono space-y-0.5 text-xs">
+                    <p>> 系統內核 V7.0 已就緒。</p>
+                    <p>> 全螢幕模組載入完成。<span class="cursor"></span></p>
+                </div>
             </div>
+            <button onclick="toggleSettings()" class="btn-pixel text-[10px] py-1 px-2">SETTINGS</button>
+        </div>
+
+        <!-- 右下角設置介面 -->
+        <div id="settings-overlay" class="pixel-text text-xs">
+            <p class="border-b border-current mb-3 pb-1 font-bold">系統核心配置</p>
+            
+            <div class="mb-4">
+                <p class="mb-2">視覺方案：</p>
+                <div class="flex gap-3">
+                    <div onclick="setTheme('green', 'CLASSIC_GREEN')" class="theme-dot" style="background: #00ff41;" title="Classic Green"></div>
+                    <div onclick="setTheme('red', 'ALERT_RED')" class="theme-dot" style="background: #ff3131;" title="Alert Red"></div>
+                    <div onclick="setTheme('blue', 'CYBER_BLUE')" class="theme-dot" style="background: #31d7ff;" title="Cyber Blue"></div>
+                    <div onclick="setTheme('amber', 'VINTAGE_AMBER')" class="theme-dot" style="background: #ffb000;" title="Vintage Amber"></div>
+                </div>
+            </div>
+
+            <div class="mb-4 flex gap-2">
+                <div class="flex-1">
+                    <p class="mb-1">工作 (分):</p>
+                    <input id="set-work" type="number" value="25" min="1" max="60" class="border border-current px-1 w-full bg-black">
+                </div>
+                <div class="flex-1">
+                    <p class="mb-1">休息 (分):</p>
+                    <input id="set-break" type="number" value="5" min="1" max="30" class="border border-current px-1 w-full bg-black">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFullscreen()" class="w-full border border-current py-1 hover:bg-[var(--main-color)] hover:text-black transition-colors">切換全螢幕 [F]</button>
+            </div>
+
+            <button onclick="applySettings()" class="w-full btn-pixel text-[10px] py-1">套用變更</button>
         </div>
     </div>
 
     <script>
-        const apiKey = ""; // 自動注入
-        const WORK_TIME = 25 * 60;
-        const BREAK_TIME = 5 * 60;
-        const MATRIX_SIZE = 40; 
-
-        let timeLeft = WORK_TIME;
+        let workMins = 25;
+        let breakMins = 5;
+        let timeLeft = workMins * 60;
         let isRunning = false;
         let isWorkSession = true;
         let timerId = null;
+        const MATRIX_SIZE = 30;
 
-        // --- Web Audio 合成器 ---
-        let audioCtx = null;
-        let isSynthPlaying = false;
-        let nextNoteTime = 0;
-        let noteIndex = 0;
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timerDisplay = document.getElementById('timer-display');
+        const timerLabel = document.getElementById('timer-label');
+        const logs = document.getElementById('logs');
 
-        const mozartMelody = [
-            [440, 0.2], [415, 0.2], [392, 0.2], [415, 0.2], [440, 0.4],
-            [493, 0.2], [440, 0.2], [415, 0.2], [440, 0.2], [493, 0.4],
-            [523, 0.2], [493, 0.2], [466, 0.2], [493, 0.2], [523, 0.4],
-            [587, 0.2], [523, 0.4], [493, 0.4], [440, 0.4]
-        ];
-
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playSynthNote(freq, duration) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
-        }
-
-        function synthLoop() {
-            if (!isSynthPlaying) return;
-            if (audioCtx.currentTime > nextNoteTime) {
-                const [freq, duration] = mozartMelody[noteIndex];
-                playSynthNote(freq, duration);
-                nextNoteTime = audioCtx.currentTime + duration + 0.05;
-                noteIndex = (noteIndex + 1) % mozartMelody.length;
+        function initMatrix() {
+            const matrix = document.getElementById('progress-matrix');
+            matrix.innerHTML = '';
+            for(let i=0; i<MATRIX_SIZE; i++) {
+                const b = document.createElement('div');
+                b.className = 'progress-block';
+                matrix.appendChild(b);
             }
-            requestAnimationFrame(synthLoop);
         }
 
-        function toggleAudio(force) {
-            initAudio();
-            isSynthPlaying = (force !== undefined) ? force : !isSynthPlaying;
-            const visualizer = document.getElementById('audio-visualizer');
-            if (isSynthPlaying) {
-                visualizer.classList.add('playing');
-                nextNoteTime = audioCtx.currentTime;
-                synthLoop();
+        function setTheme(theme, name) {
+            document.body.className = `theme-${theme}`;
+            document.getElementById('theme-name').textContent = name;
+            addLog(`視覺調整: ${name}`);
+        }
+
+        function toggleSettings() {
+            const overlay = document.getElementById('settings-overlay');
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    addLog(`全螢幕失敗: ${err.message}`);
+                });
+                addLog("啟動全螢幕模式。");
             } else {
-                visualizer.classList.remove('playing');
-            }
-        }
-
-        // --- Gemini API 邏輯 ---
-
-        async function fetchGemini(prompt, systemInstruction) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] }
-            };
-
-            let delay = 1000;
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) throw new Error('API_FAILURE');
-                    const data = await response.json();
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (err) {
-                    if (i === 4) throw err;
-                    await new Promise(r => setTimeout(r, delay));
-                    delay *= 2;
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    addLog("退出全螢幕模式。");
                 }
             }
         }
 
-        async function splitTask() {
-            const task = document.getElementById('task-input').value.trim();
-            if (!task) return addLog("錯誤：輸入為空。");
-
-            addLog("✨ AI 正在拆解複雜邏輯...");
-            const subTasks = document.getElementById('sub-tasks');
-            subTasks.innerHTML = '<span>[ ] 解析中...</span>';
-            
-            try {
-                const result = await fetchGemini(`任務：${task}`, "請將任務拆解為4個短步驟（每個10字內）。格式：1.步驟 2.步驟 3.步驟 4.步驟。");
-                const steps = result.split(/[1-4]\./).filter(s => s.trim()).slice(0, 4);
-                subTasks.innerHTML = '';
-                steps.forEach(s => {
-                    const el = document.createElement('span');
-                    el.textContent = `[ ] ${s.trim()}`;
-                    subTasks.appendChild(el);
-                });
-                addLog("✨ 任務序列已成功重組。");
-            } catch (err) {
-                addLog("✨ AI 服務連線超時，切換至備用協議。", "error");
-                subTasks.innerHTML = '<span>[ ] 手動執行序列 A</span><span>[ ] 手動執行序列 B</span>';
-            }
+        function applySettings() {
+            workMins = parseInt(document.getElementById('set-work').value) || 25;
+            breakMins = parseInt(document.getElementById('set-break').value) || 5;
+            resetTimer();
+            toggleSettings();
+            addLog("系統時序參數已重寫。");
         }
 
-        async function updateQuote() {
-            try {
-                const quote = await fetchGemini("隨機生成一句駭客風格專注語錄", "你是終端機，生成一句20字內激勵語。例如：'專注是唯一的防火牆。'");
-                document.getElementById('ai-quote').textContent = `"${quote.trim()}"`;
-            } catch (err) {
-                document.getElementById('ai-quote').textContent = '"專注是你的最強代碼。"';
-            }
-        }
-
-        // --- 介面控制 ---
-
-        function addLog(msg, type = "") {
+        function addLog(msg) {
             const p = document.createElement('p');
-            if (type === "error") p.style.color = "#ff4141";
             p.textContent = `> ${msg}`;
-            const logs = document.getElementById('logs');
             logs.appendChild(p);
-            if (logs.children.length > 5) logs.removeChild(logs.firstChild);
+            if(logs.children.length > 5) logs.removeChild(logs.firstChild);
+            logs.scrollTop = logs.scrollHeight;
         }
 
         function updateDisplay() {
-            const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const secs = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
 
-            const total = isWorkSession ? WORK_TIME : BREAK_TIME;
+            const total = (isWorkSession ? workMins : breakMins) * 60;
             const progress = (total - timeLeft) / total;
             document.getElementById('progress-percent').textContent = `${Math.floor(progress * 100)}%`;
 
@@ -357,33 +282,26 @@
         }
 
         function toggleTimer() {
-            const btn = document.getElementById('start-btn');
-            const status = document.getElementById('status-text');
-            
-            if (isRunning) {
+            if(isRunning) {
                 clearInterval(timerId);
                 isRunning = false;
-                btn.textContent = 'RUN';
-                status.textContent = 'PAUSED';
-                addLog("核心暫停。");
-                toggleAudio(false);
+                startBtn.textContent = 'RUN';
+                addLog("序列暫停。");
             } else {
                 isRunning = true;
-                btn.textContent = 'STOP';
-                status.textContent = isWorkSession ? 'EXECUTING' : 'RECOVERY';
-                addLog(isWorkSession ? "執行專注序列..." : "執行修眠程序...");
-                toggleAudio(true);
-                updateQuote();
-
+                startBtn.textContent = 'STOP';
+                addLog(isWorkSession ? "執行專注序列..." : "執行恢復程序...");
+                
                 timerId = setInterval(() => {
                     timeLeft--;
                     updateDisplay();
-                    if (timeLeft <= 0) {
+                    if(timeLeft <= 0) {
                         clearInterval(timerId);
                         isRunning = false;
                         isWorkSession = !isWorkSession;
-                        timeLeft = isWorkSession ? WORK_TIME : BREAK_TIME;
-                        document.getElementById('timer-label').textContent = isWorkSession ? '--- TASK_UNIT_25 ---' : '--- REST_UNIT_05 ---';
+                        timeLeft = (isWorkSession ? workMins : breakMins) * 60;
+                        timerLabel.textContent = isWorkSession ? '--- WORK_SESSION ---' : '--- BREAK_SESSION ---';
+                        addLog(isWorkSession ? "休息結束，返回任務。" : "任務達成，啟動休息。");
                         toggleTimer();
                     }
                 }, 1000);
@@ -394,31 +312,22 @@
             clearInterval(timerId);
             isRunning = false;
             isWorkSession = true;
-            timeLeft = WORK_TIME;
-            document.getElementById('start-btn').textContent = 'RUN';
-            document.getElementById('status-text').textContent = 'STANDBY';
-            addLog("核心重置完成。");
-            toggleAudio(false);
+            timeLeft = workMins * 60;
+            startBtn.textContent = 'RUN';
+            timerLabel.textContent = '--- WORK_SESSION ---';
             updateDisplay();
         }
 
-        // 初始化
-        const matrix = document.getElementById('progress-matrix');
-        for (let i = 0; i < MATRIX_SIZE; i++) {
-            const b = document.createElement('div');
-            b.className = 'progress-block';
-            matrix.appendChild(b);
-        }
-
-        document.getElementById('ai-split-btn').addEventListener('click', splitTask);
-        document.getElementById('start-btn').addEventListener('click', toggleTimer);
-        document.getElementById('reset-btn').addEventListener('click', resetTimer);
+        startBtn.addEventListener('click', toggleTimer);
+        resetBtn.addEventListener('click', resetTimer);
 
         setInterval(() => {
             const now = new Date();
-            document.getElementById('current-date').textContent = `DATE: ${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+            document.getElementById('current-date').textContent = `DATE: ${now.toLocaleDateString()}`;
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-GB');
         }, 1000);
 
+        initMatrix();
         updateDisplay();
     </script>
 </body>
