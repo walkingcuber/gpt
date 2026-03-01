@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIXEL_TERMINAL_V2.0</title>
+    <title>PIXEL_TERMINAL_V3.0_GEMINI_AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 引入像素風格字體 */
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap');
 
         :root {
@@ -28,11 +27,10 @@
             margin: 0;
         }
 
-        /* 模擬 CRT 螢幕與玻璃質感 */
         .crt-monitor {
             position: relative;
             width: 100%;
-            max-width: 650px;
+            max-width: 750px;
             background: #0a0a0a;
             border: 15px solid #2a2a2a;
             border-radius: 15px;
@@ -40,7 +38,6 @@
             box-shadow: 0 0 0 5px #1a1a1a, inset 0 0 100px rgba(0, 255, 65, 0.1);
         }
 
-        /* 掃描線與顆粒感 */
         .crt-monitor::after {
             content: " ";
             display: block;
@@ -54,7 +51,6 @@
             opacity: 0.7;
         }
 
-        /* 螢幕抖動特效 */
         @keyframes scanline {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100%); }
@@ -79,8 +75,8 @@
             background: var(--pixel-green-dim);
             border: 3px solid var(--pixel-green);
             color: var(--pixel-green);
-            padding: 10px 20px;
-            font-size: 1.25rem;
+            padding: 8px 16px;
+            font-size: 1rem;
             transition: all 0.1s;
             cursor: pointer;
             text-transform: uppercase;
@@ -106,8 +102,8 @@
 
         .progress-block {
             display: inline-block;
-            width: 15px;
-            height: 25px;
+            width: 12px;
+            height: 20px;
             margin-right: 2px;
             background: var(--pixel-green-dim);
         }
@@ -118,8 +114,8 @@
         }
 
         .cursor {
-            width: 12px;
-            height: 20px;
+            width: 10px;
+            height: 18px;
             background: var(--pixel-green);
             display: inline-block;
             animation: blink 0.6s steps(1) infinite;
@@ -127,6 +123,20 @@
         }
 
         @keyframes blink { 50% { opacity: 0; } }
+
+        input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--pixel-green);
+            width: 100%;
+            font-family: inherit;
+        }
+
+        #ai-quote {
+            min-height: 2.5em;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -134,42 +144,57 @@
         <div class="scanline-effect"></div>
         
         <!-- UI Header -->
-        <div class="flex justify-between border-b-2 border-[#00ff41] pb-2 mb-6 pixel-text">
-            <div class="text-sm">
-                <p>> SYS_CORE: LOADED</p>
+        <div class="flex justify-between border-b-2 border-[#00ff41] pb-2 mb-4 pixel-text text-sm">
+            <div>
+                <p>> SYS_CORE: V3.0_AI_ENHANCED</p>
                 <p>> MODE: <span id="status-text">STANDBY</span></p>
             </div>
-            <div class="text-right text-sm">
+            <div class="text-right">
                 <p id="current-date">DATE: 1999-01-01</p>
-                <p>MEMORY: 640KB OK</p>
+                <p>AI_ENGINE: GEMINI-2.5-FLASH</p>
+            </div>
+        </div>
+
+        <!-- AI Task Input -->
+        <div class="mb-4 pixel-border p-3 text-xs">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-white bg-[#00ff41] px-1 text-black font-bold">TASK_INPUT</span>
+                <input id="task-input" type="text" placeholder="輸入目前的主要任務（例如：撰寫報告）..." maxlength="50">
+                <button id="ai-split-btn" class="text-xs border border-[#00ff41] px-2 hover:bg-[#00ff41] hover:text-black transition-colors">✨ AI 拆解</button>
+            </div>
+            <div id="sub-tasks" class="grid grid-cols-2 gap-x-4 opacity-70">
+                <!-- 子任務會顯示在這裡 -->
+                <span>[ ] 待載入序列...</span>
+                <span>[ ] 待載入序列...</span>
             </div>
         </div>
 
         <!-- Timer Center -->
-        <div class="text-center my-10">
-            <div id="timer-label" class="text-xl opacity-60 mb-2 font-bold tracking-widest">--- TASK_UNIT_25 ---</div>
-            <div id="timer-display" class="text-8xl md:text-9xl font-bold pixel-text">25:00</div>
+        <div class="text-center my-6">
+            <div id="ai-quote" class="text-xs mb-2 opacity-80 px-4">"系統就緒。等待專注指令..."</div>
+            <div id="timer-display" class="text-7xl md:text-8xl font-bold pixel-text">25:00</div>
+            <div id="timer-label" class="text-lg opacity-60 mt-1 font-bold tracking-widest">--- TASK_UNIT_25 ---</div>
         </div>
 
         <!-- Progress Matrix -->
-        <div class="mb-8">
-            <div class="flex justify-between text-xs mb-2">
-                <span>LOADING_RESOURCE...</span>
+        <div class="mb-6">
+            <div class="flex justify-between text-xs mb-1">
+                <span>BUFFERING_DATA_STREAM...</span>
                 <span id="progress-percent">0%</span>
             </div>
-            <div id="progress-matrix" class="flex flex-wrap gap-1">
+            <div id="progress-matrix" class="flex flex-wrap gap-1 justify-center">
                 <!-- Blocks generated by JS -->
             </div>
         </div>
 
         <!-- Commands -->
-        <div class="flex justify-center gap-8 mb-10">
+        <div class="flex justify-center gap-8 mb-6">
             <button id="start-btn" class="btn-pixel">RUN</button>
             <button id="reset-btn" class="btn-pixel" style="border-color: #880000; color: #ff0000; box-shadow: 4px 4px 0px #880000;">KILL</button>
         </div>
 
         <!-- Log Output -->
-        <div class="bg-black p-4 pixel-border h-32 overflow-hidden text-sm opacity-90">
+        <div class="bg-black p-3 pixel-border h-24 overflow-hidden text-xs opacity-90">
             <div id="logs" class="font-mono">
                 <p>> 核心系統啟動成功...</p>
                 <p>> 等待外部指令輸入 <span class="cursor"></span></p>
@@ -178,9 +203,10 @@
     </div>
 
     <script>
+        const apiKey = ""; // 由環境自動注入
         const WORK_TIME = 25 * 60;
         const BREAK_TIME = 5 * 60;
-        const MATRIX_SIZE = 20; // 顯示 20 個小方塊
+        const MATRIX_SIZE = 40; 
 
         let timeLeft = WORK_TIME;
         let isRunning = false;
@@ -195,7 +221,10 @@
         const logsContainer = document.getElementById('logs');
         const progressMatrix = document.getElementById('progress-matrix');
         const progressPercent = document.getElementById('progress-percent');
-        const currentDateLabel = document.getElementById('current-date');
+        const aiQuoteDisplay = document.getElementById('ai-quote');
+        const taskInput = document.getElementById('task-input');
+        const subTasksContainer = document.getElementById('sub-tasks');
+        const aiSplitBtn = document.getElementById('ai-split-btn');
 
         // 初始化進度方塊
         function initMatrix() {
@@ -207,12 +236,82 @@
             }
         }
 
+        // --- Gemini API 集成 ---
+
+        async function fetchGemini(prompt, systemInstruction) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error('API_FAILURE');
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (err) {
+                    if (i === 4) throw err;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // ✨ 功能 1: 任務拆解
+        async function splitTask() {
+            const task = taskInput.value.trim();
+            if (!task) {
+                addLog("錯誤：未偵測到 TASK 內容。");
+                return;
+            }
+
+            addLog("✨ AI 正在進行任務邏輯拆解...");
+            subTasksContainer.innerHTML = '<span>[ ] 解析中...</span>';
+            
+            try {
+                const systemPrompt = "你是一個效率終端機。請將使用者輸入的任務拆解為 4 個極短的步驟（每個步驟不超過 10 個字）。格式必須為：1.步驟 2.步驟 3.步驟 4.步驟。";
+                const result = await fetchGemini(`任務：${task}`, systemPrompt);
+                
+                const steps = result.split(/[1-4]\./).filter(s => s.trim()).slice(0, 4);
+                subTasksContainer.innerHTML = '';
+                steps.forEach(step => {
+                    const el = document.createElement('span');
+                    el.textContent = `[ ] ${step.trim()}`;
+                    subTasksContainer.appendChild(el);
+                });
+                addLog("✨ 任務拆解完成。序列已更新。");
+            } catch (err) {
+                addLog("✨ AI 拆解失敗。系統離線。");
+                subTasksContainer.innerHTML = '<span>[ ] 序列手動加載模式</span>';
+            }
+        }
+
+        // ✨ 功能 2: 隨機語錄
+        async function updateQuote() {
+            try {
+                const systemPrompt = "你是一個冷酷的駭客終端機。請生成一句不超過 20 字的激勵語錄。風格要帶有復古電腦、代碼、矩陣感。例如：'燒錄你的意志，讓代碼跑得更快。'";
+                const quote = await fetchGemini("給我一句隨機專注語錄", systemPrompt);
+                aiQuoteDisplay.textContent = `"${quote.trim()}"`;
+            } catch (err) {
+                aiQuoteDisplay.textContent = '"代碼即真理，專注即力量。"';
+            }
+        }
+
+        // --- 基礎邏輯 ---
+
         function playSound(freq, duration = 0.1) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.type = 'square'; // 像素風格適合方塊波
+                osc.type = 'square';
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
                 gain.gain.setValueAtTime(0.05, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
@@ -234,13 +333,12 @@
             const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
             const secs = (timeLeft % 60).toString().padStart(2, '0');
             timerDisplay.textContent = `${mins}:${secs}`;
-            document.title = `${mins}:${secs} - PIXEL_POMO`;
+            document.title = `${mins}:${secs} - AI_POMO`;
 
             const total = isWorkSession ? WORK_TIME : BREAK_TIME;
             const progressRatio = (total - timeLeft) / total;
             progressPercent.textContent = `${Math.floor(progressRatio * 100)}%`;
 
-            // 更新方塊
             const activeCount = Math.floor(progressRatio * MATRIX_SIZE);
             const blocks = document.querySelectorAll('.progress-block');
             blocks.forEach((b, idx) => {
@@ -249,36 +347,23 @@
             });
         }
 
-        function switchSession() {
-            isWorkSession = !isWorkSession;
-            timeLeft = isWorkSession ? WORK_TIME : BREAK_TIME;
-            timerLabel.textContent = isWorkSession ? '--- TASK_UNIT_25 ---' : '--- REST_UNIT_05 ---';
-            statusText.textContent = isWorkSession ? 'EXECUTING' : 'RECOVERY';
-            
-            if (isWorkSession) {
-                addLog("任務重啟：專注序列載入中...");
-                playSound(600, 0.3);
-            } else {
-                addLog("序列完成：啟動冷卻程序...");
-                playSound(800, 0.3);
-            }
-            updateDisplay();
-        }
-
         function toggleTimer() {
             if (isRunning) {
                 clearInterval(timerId);
                 isRunning = false;
                 startBtn.textContent = 'RUN';
                 statusText.textContent = 'PAUSED';
-                addLog("進程已中斷：等待喚醒指令。");
+                addLog("進程暫停：等待喚醒。");
                 playSound(300, 0.1);
             } else {
                 isRunning = true;
                 startBtn.textContent = 'STOP';
                 statusText.textContent = isWorkSession ? 'EXECUTING' : 'RECOVERY';
-                addLog(isWorkSession ? "執行專注指令集..." : "執行休眠指令集...");
+                addLog(isWorkSession ? "執行專注指令集..." : "執行修眠指令集...");
                 playSound(1000, 0.05);
+                
+                // 每次啟動時更新 AI 語錄
+                updateQuote();
 
                 timerId = setInterval(() => {
                     timeLeft--;
@@ -288,10 +373,25 @@
                         isRunning = false;
                         startBtn.textContent = 'RUN';
                         switchSession();
-                        toggleTimer(); // 自動連鎖執行
+                        toggleTimer();
                     }
                 }, 1000);
             }
+        }
+
+        function switchSession() {
+            isWorkSession = !isWorkSession;
+            timeLeft = isWorkSession ? WORK_TIME : BREAK_TIME;
+            timerLabel.textContent = isWorkSession ? '--- TASK_UNIT_25 ---' : '--- REST_UNIT_05 ---';
+            
+            if (isWorkSession) {
+                addLog("✨ AI 正在重新評估狀態...");
+                playSound(600, 0.3);
+            } else {
+                addLog("序列完成：啟動冷卻程序...");
+                playSound(800, 0.3);
+            }
+            updateDisplay();
         }
 
         function resetTimer() {
@@ -302,18 +402,18 @@
             timerLabel.textContent = '--- TASK_UNIT_25 ---';
             startBtn.textContent = 'RUN';
             statusText.textContent = 'STANDBY';
-            addLog("核心清除：環境已還原至預設值。");
+            addLog("核心清除：環境已還原。");
             playSound(150, 0.5);
             updateDisplay();
         }
 
+        aiSplitBtn.addEventListener('click', splitTask);
         startBtn.addEventListener('click', toggleTimer);
         resetBtn.addEventListener('click', resetTimer);
 
-        // 模擬復古日期時鐘
         setInterval(() => {
             const now = new Date();
-            currentDateLabel.textContent = `DATE: ${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+            document.getElementById('current-date').textContent = `DATE: ${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
         }, 1000);
 
         initMatrix();
