@@ -1,234 +1,323 @@
-import React, { useState } from 'react';
-import { 
-  Terminal, 
-  CheckCircle2, 
-  XCircle, 
-  ChevronRight, 
-  Code2, 
-  Layers, 
-  Search, 
-  RefreshCcw,
-  BookOpen
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXEL_TERMINAL_V2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 引入像素風格字體 */
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap');
 
-/**
- * 部署至 GitHub Pages 說明：
- * 1. 確保你的專案 package.json 中加入了 "homepage": "https://<your-username>.github.io/<repo-name>"
- * 2. 使用 npm run build 生成產物。
- * 3. 推薦使用 gh-pages 套件：npm install gh-pages --save-dev
- * 4. 在 scripts 中加入 "predeploy": "npm run build", "deploy": "gh-pages -d build"
- */
+        :root {
+            --pixel-green: #00ff41;
+            --pixel-green-dim: #004411;
+            --pixel-green-glow: rgba(0, 255, 65, 0.4);
+            --bg-black: #050505;
+        }
 
-const App = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [score, setScore] = useState(0);
+        body {
+            background-color: #000;
+            color: var(--pixel-green);
+            font-family: 'DotGothic16', 'VT323', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
 
-  const challenges = [
-    {
-      title: "關卡一：基地台覆蓋 (二分搜尋)",
-      difficulty: "APCS P3 難度",
-      concept: "Binary Search / Greedy",
-      description: "在檢查直徑 d 是否能覆蓋所有住戶時，若在位置 p 放下基地台，該基地台最遠能覆蓋到哪裡？",
-      code: `def can_cover(d, k, houses):
-    count = 0
-    last_covered = -1
-    for p in houses:
-        if p > last_covered:
-            count += 1
-            # 這裡應該填入什麼？
-            last_covered = _______ 
-    return count <= k`,
-      options: [
-        { id: 1, text: "p + d", correct: true, feedback: "正確！因為基地台可以放在住戶 p 的位置（或稍微右邊），使其覆蓋範圍延伸到 p + d。" },
-        { id: 2, text: "p + d / 2", correct: false, feedback: "不對喔。雖然基地台半徑是 d/2，但我們可以選擇將基地台放在 p + d/2 處，這樣範圍就能達到 p + d。" },
-        { id: 3, text: "houses[-1]", correct: false, feedback: "這是最後一個住戶的位置，與當前基地台覆蓋範圍無關。" }
-      ]
-    },
-    {
-      title: "關卡二：程式碼解析 (Stack 漏洞)",
-      difficulty: "APCS P2 難度",
-      concept: "Stack / Error Handling",
-      description: "這段檢查括號的程式碼，如果輸入字串只有一個右括號 \")\"，為什麼會當機？",
-      code: `if (c == ')' && st.top() != '(') return false;
-// ... 
-st.pop();`,
-      options: [
-        { id: 1, text: "變數型別錯誤", correct: false, feedback: "型別是正確的，問題出在邏輯順序。" },
-        { id: 2, text: "堆疊為空時呼叫 top() 會出錯", correct: true, feedback: "賓果！當 stack 為空時呼叫 .top() 會引發 runtime error。應先檢查 !st.empty()。" },
-        { id: 3, text: "記憶體不足", correct: false, feedback: "這只是一個括號，不至於讓記憶體耗盡。" }
-      ]
-    },
-    {
-      title: "關卡三：秘密差 (字串跳格處理)",
-      difficulty: "APCS P1 難度",
-      concept: "String Slicing",
-      description: "在 Python 中，若要快速取得字串 s 中索引值為 0, 2, 4... 的所有字元（奇數位），哪種切片最合適？",
-      code: `X = "123456"
-# 目標：取得 "135"`,
-      options: [
-        { id: 1, text: "s[::2]", correct: true, feedback: "正確！[start:stop:step] 語法中，step 設為 2 即可每隔一個取一個。" },
-        { id: 2, text: "s[1::2]", correct: false, feedback: "這會取得索引 1, 3, 5... 的字元（即 \"246\"）。" },
-        { id: 3, text: "s[::-1]", correct: false, feedback: "這是用來將字串反轉的技巧。" }
-      ]
-    }
-  ];
+        /* 模擬 CRT 螢幕與玻璃質感 */
+        .crt-monitor {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            background: #0a0a0a;
+            border: 15px solid #2a2a2a;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 0 5px #1a1a1a, inset 0 0 100px rgba(0, 255, 65, 0.1);
+        }
 
-  const handleOptionSelect = (option) => {
-    if (showFeedback) return;
-    setSelectedOption(option);
-    setShowFeedback(true);
-    if (option.correct) setScore(score + 1);
-  };
+        /* 掃描線與顆粒感 */
+        .crt-monitor::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            z-index: 10;
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            opacity: 0.7;
+        }
 
-  const nextChallenge = () => {
-    setSelectedOption(null);
-    setShowFeedback(false);
-    setCurrentStep(currentStep + 1);
-  };
+        /* 螢幕抖動特效 */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline-effect {
+            width: 100%;
+            height: 100px;
+            z-index: 11;
+            background: linear-gradient(0deg, rgba(0, 255, 65, 0) 0%, rgba(0, 255, 65, 0.05) 50%, rgba(0, 255, 65, 0) 100%);
+            opacity: 0.1;
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 8s linear infinite;
+        }
 
-  const resetQuiz = () => {
-    setCurrentStep(0);
-    setSelectedOption(null);
-    setShowFeedback(false);
-    setScore(0);
-  };
+        .pixel-text {
+            text-shadow: 0 0 10px var(--pixel-green-glow);
+            letter-spacing: 2px;
+        }
 
-  const currentChallenge = challenges[currentStep];
+        .btn-pixel {
+            background: var(--pixel-green-dim);
+            border: 3px solid var(--pixel-green);
+            color: var(--pixel-green);
+            padding: 10px 20px;
+            font-size: 1.25rem;
+            transition: all 0.1s;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px var(--pixel-green);
+            position: relative;
+        }
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
-          <div className="flex items-center gap-3">
-            <Terminal className="text-emerald-400 w-8 h-8" />
-            <h1 className="text-2xl font-bold tracking-tight">APCS 互動實戰挑戰</h1>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-slate-400">目前分數</div>
-            <div className="text-xl font-mono text-emerald-400">{score} / {challenges.length}</div>
-          </div>
+        .btn-pixel:hover {
+            background: var(--pixel-green);
+            color: #000;
+            box-shadow: 0px 0px 15px var(--pixel-green);
+        }
+
+        .btn-pixel:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px var(--pixel-green);
+        }
+
+        .pixel-border {
+            border: 2px solid var(--pixel-green);
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .progress-block {
+            display: inline-block;
+            width: 15px;
+            height: 25px;
+            margin-right: 2px;
+            background: var(--pixel-green-dim);
+        }
+
+        .progress-block.active {
+            background: var(--pixel-green);
+            box-shadow: 0 0 8px var(--pixel-green);
+        }
+
+        .cursor {
+            width: 12px;
+            height: 20px;
+            background: var(--pixel-green);
+            display: inline-block;
+            animation: blink 0.6s steps(1) infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="crt-monitor">
+        <div class="scanline-effect"></div>
+        
+        <!-- UI Header -->
+        <div class="flex justify-between border-b-2 border-[#00ff41] pb-2 mb-6 pixel-text">
+            <div class="text-sm">
+                <p>> SYS_CORE: LOADED</p>
+                <p>> MODE: <span id="status-text">STANDBY</span></p>
+            </div>
+            <div class="text-right text-sm">
+                <p id="current-date">DATE: 1999-01-01</p>
+                <p>MEMORY: 640KB OK</p>
+            </div>
         </div>
 
-        {currentStep < challenges.length ? (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Challenge Info */}
-            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded border border-emerald-500/30">
-                  {currentChallenge.difficulty}
-                </span>
-                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded border border-blue-500/30">
-                  {currentChallenge.concept}
-                </span>
-              </div>
-              <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-slate-400" />
-                {currentChallenge.title}
-              </h2>
-              <p className="text-slate-300 mb-6 leading-relaxed">
-                {currentChallenge.description}
-              </p>
-
-              {/* Code Block */}
-              <div className="bg-slate-950 rounded-lg p-4 mb-6 font-mono text-sm overflow-x-auto border border-slate-700">
-                <div className="flex items-center gap-2 mb-2 text-slate-500">
-                  <Code2 className="w-4 h-4" />
-                  <span>程式碼片段</span>
-                </div>
-                <pre className="text-emerald-300">
-                  <code>{currentChallenge.code}</code>
-                </pre>
-              </div>
-
-              {/* Options */}
-              <div className="grid gap-3">
-                {currentChallenge.options.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleOptionSelect(option)}
-                    disabled={showFeedback}
-                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
-                      showFeedback
-                        ? option.correct
-                          ? 'bg-emerald-500/20 border-emerald-500 text-emerald-100'
-                          : selectedOption?.id === option.id
-                            ? 'bg-red-500/20 border-red-500 text-red-100'
-                            : 'bg-slate-800/50 border-slate-700 opacity-50'
-                        : 'bg-slate-700/50 border-slate-600 hover:border-emerald-500 hover:bg-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{option.text}</span>
-                      {showFeedback && option.correct && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
-                      {showFeedback && selectedOption?.id === option.id && !option.correct && <XCircle className="w-5 h-5 text-red-400" />}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Feedback Section */}
-              {showFeedback && (
-                <div className="mt-6 p-4 rounded-lg bg-slate-900/50 border border-slate-700 animate-in zoom-in-95 duration-300">
-                  <p className={`text-sm ${selectedOption?.correct ? 'text-emerald-400' : 'text-red-400'} font-medium mb-1`}>
-                    {selectedOption?.correct ? '太棒了！' : '哎呀，再想想看...'}
-                  </p>
-                  <p className="text-slate-300 text-sm italic">{selectedOption?.feedback}</p>
-                  <button
-                    onClick={nextChallenge}
-                    className="mt-4 w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-semibold transition-colors"
-                  >
-                    {currentStep === challenges.length - 1 ? '查看結果' : '下一關'}
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          /* Results Screen */
-          <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-700 shadow-2xl animate-in zoom-in-95 duration-500">
-            <div className="inline-block p-4 bg-emerald-500/20 rounded-full mb-6">
-              <CheckCircle2 className="w-16 h-16 text-emerald-400" />
-            </div>
-            <h2 className="text-3xl font-bold mb-2">挑戰完成！</h2>
-            <p className="text-slate-400 mb-8">你的總分是：<span className="text-emerald-400 font-mono text-2xl">{score} / {challenges.length}</span></p>
-            
-            <div className="max-w-xs mx-auto space-y-3">
-              <button
-                onClick={resetQuiz}
-                className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-semibold transition-all"
-              >
-                <RefreshCcw className="w-5 h-5" />
-                重新挑戰
-              </button>
-              <div className="text-xs text-slate-500 mt-4">
-                繼續努力！APCS 的核心在於細心與邏輯的嚴密性。
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Footer info */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-500 text-sm">
-          <div className="flex flex-col items-center p-4 bg-slate-800/30 rounded-lg border border-slate-800">
-            <Search className="w-5 h-5 mb-2 text-emerald-500/50" />
-            <span>精準搜尋 (Binary Search)</span>
-          </div>
-          <div className="flex flex-col items-center p-4 bg-slate-800/30 rounded-lg border border-slate-800">
-            <Layers className="w-5 h-5 mb-2 text-blue-500/50" />
-            <span>堆疊邏輯 (Stack)</span>
-          </div>
-          <div className="flex flex-col items-center p-4 bg-slate-800/30 rounded-lg border border-slate-800">
-            <Code2 className="w-5 h-5 mb-2 text-purple-500/50" />
-            <span>高效實作 (Implementation)</span>
-          </div>
+        <!-- Timer Center -->
+        <div class="text-center my-10">
+            <div id="timer-label" class="text-xl opacity-60 mb-2 font-bold tracking-widest">--- TASK_UNIT_25 ---</div>
+            <div id="timer-display" class="text-8xl md:text-9xl font-bold pixel-text">25:00</div>
         </div>
-      </div>
+
+        <!-- Progress Matrix -->
+        <div class="mb-8">
+            <div class="flex justify-between text-xs mb-2">
+                <span>LOADING_RESOURCE...</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div id="progress-matrix" class="flex flex-wrap gap-1">
+                <!-- Blocks generated by JS -->
+            </div>
+        </div>
+
+        <!-- Commands -->
+        <div class="flex justify-center gap-8 mb-10">
+            <button id="start-btn" class="btn-pixel">RUN</button>
+            <button id="reset-btn" class="btn-pixel" style="border-color: #880000; color: #ff0000; box-shadow: 4px 4px 0px #880000;">KILL</button>
+        </div>
+
+        <!-- Log Output -->
+        <div class="bg-black p-4 pixel-border h-32 overflow-hidden text-sm opacity-90">
+            <div id="logs" class="font-mono">
+                <p>> 核心系統啟動成功...</p>
+                <p>> 等待外部指令輸入 <span class="cursor"></span></p>
+            </div>
+        </div>
     </div>
-  );
-};
 
-export default App;
+    <script>
+        const WORK_TIME = 25 * 60;
+        const BREAK_TIME = 5 * 60;
+        const MATRIX_SIZE = 20; // 顯示 20 個小方塊
+
+        let timeLeft = WORK_TIME;
+        let isRunning = false;
+        let isWorkSession = true;
+        let timerId = null;
+
+        const timerDisplay = document.getElementById('timer-display');
+        const timerLabel = document.getElementById('timer-label');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const statusText = document.getElementById('status-text');
+        const logsContainer = document.getElementById('logs');
+        const progressMatrix = document.getElementById('progress-matrix');
+        const progressPercent = document.getElementById('progress-percent');
+        const currentDateLabel = document.getElementById('current-date');
+
+        // 初始化進度方塊
+        function initMatrix() {
+            progressMatrix.innerHTML = '';
+            for (let i = 0; i < MATRIX_SIZE; i++) {
+                const block = document.createElement('div');
+                block.className = 'progress-block';
+                progressMatrix.appendChild(block);
+            }
+        }
+
+        function playSound(freq, duration = 0.1) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square'; // 像素風格適合方塊波
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function addLog(msg) {
+            const p = document.createElement('p');
+            p.textContent = `> ${msg}`;
+            logsContainer.appendChild(p);
+            if (logsContainer.children.length > 5) logsContainer.removeChild(logsContainer.firstChild);
+        }
+
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const secs = (timeLeft % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${mins}:${secs}`;
+            document.title = `${mins}:${secs} - PIXEL_POMO`;
+
+            const total = isWorkSession ? WORK_TIME : BREAK_TIME;
+            const progressRatio = (total - timeLeft) / total;
+            progressPercent.textContent = `${Math.floor(progressRatio * 100)}%`;
+
+            // 更新方塊
+            const activeCount = Math.floor(progressRatio * MATRIX_SIZE);
+            const blocks = document.querySelectorAll('.progress-block');
+            blocks.forEach((b, idx) => {
+                if (idx < activeCount) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+        }
+
+        function switchSession() {
+            isWorkSession = !isWorkSession;
+            timeLeft = isWorkSession ? WORK_TIME : BREAK_TIME;
+            timerLabel.textContent = isWorkSession ? '--- TASK_UNIT_25 ---' : '--- REST_UNIT_05 ---';
+            statusText.textContent = isWorkSession ? 'EXECUTING' : 'RECOVERY';
+            
+            if (isWorkSession) {
+                addLog("任務重啟：專注序列載入中...");
+                playSound(600, 0.3);
+            } else {
+                addLog("序列完成：啟動冷卻程序...");
+                playSound(800, 0.3);
+            }
+            updateDisplay();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerId);
+                isRunning = false;
+                startBtn.textContent = 'RUN';
+                statusText.textContent = 'PAUSED';
+                addLog("進程已中斷：等待喚醒指令。");
+                playSound(300, 0.1);
+            } else {
+                isRunning = true;
+                startBtn.textContent = 'STOP';
+                statusText.textContent = isWorkSession ? 'EXECUTING' : 'RECOVERY';
+                addLog(isWorkSession ? "執行專注指令集..." : "執行休眠指令集...");
+                playSound(1000, 0.05);
+
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        isRunning = false;
+                        startBtn.textContent = 'RUN';
+                        switchSession();
+                        toggleTimer(); // 自動連鎖執行
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerId);
+            isRunning = false;
+            isWorkSession = true;
+            timeLeft = WORK_TIME;
+            timerLabel.textContent = '--- TASK_UNIT_25 ---';
+            startBtn.textContent = 'RUN';
+            statusText.textContent = 'STANDBY';
+            addLog("核心清除：環境已還原至預設值。");
+            playSound(150, 0.5);
+            updateDisplay();
+        }
+
+        startBtn.addEventListener('click', toggleTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // 模擬復古日期時鐘
+        setInterval(() => {
+            const now = new Date();
+            currentDateLabel.textContent = `DATE: ${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+        }, 1000);
+
+        initMatrix();
+        updateDisplay();
+    </script>
+</body>
+</html>
