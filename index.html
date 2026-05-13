@@ -3,474 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIXEL_TERMINAL_V7.0_FULLSCREEN</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>終極廢話語錄產生器 🤖</title>
+    <title>終極廢話語錄產生器 2.0 🤖</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap');
-
-        :root {
-            /* 預設經典綠 */
-            --main-color: #00ff41;
-            --main-dim: #004411;
-            --main-glow: rgba(0, 255, 65, 0.4);
-            --bg-black: #050505;
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* 主題樣式定義 */
-        body.theme-green { --main-color: #00ff41; --main-dim: #004411; --main-glow: rgba(0, 255, 65, 0.4); }
-        body.theme-red { --main-color: #ff3131; --main-dim: #440000; --main-glow: rgba(255, 49, 49, 0.4); }
-        body.theme-blue { --main-color: #31d7ff; --main-dim: #002244; --main-glow: rgba(49, 215, 255, 0.4); }
-        body.theme-amber { --main-color: #ffb000; --main-dim: #442e00; --main-glow: rgba(255, 176, 0, 0.4); }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #000;
-            color: var(--main-color);
-            font-family: 'DotGothic16', 'VT323', monospace;
-            overflow: hidden;
             font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-color: #e0e5ec;
             height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin: 0;
-            transition: color 0.3s ease;
-        }
-
-        .crt-monitor {
-            position: relative;
             align-items: center;
             padding: 20px;
         }
         .container {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background-color: #e0e5ec;
+            padding: 50px 30px;
+            border-radius: 30px;
+            box-shadow: 20px 20px 60px #bec3c9, -20px -20px 60px #ffffff;
             text-align: center;
-            max-width: 600px;
-            width: 100%;
             max-width: 650px;
-            background: #0a0a0a;
-            border: 15px solid #2a2a2a;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 0 0 5px #1a1a1a, inset 0 0 100px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s;
+            width: 100%;
         }
-
-        /* 全螢幕時的調整 */
-        :fullscreen .crt-monitor {
-            max-width: 900px;
-            border: none;
-            box-shadow: none;
-        }
-
-        .crt-monitor::after {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
-            z-index: 10;
-            background-size: 100% 4px, 4px 100%;
-            pointer-events: none;
-            opacity: 0.7;
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
-            letter-spacing: 1px;
-        }
-
-        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-        .scanline-effect {
-            width: 100%; height: 100px; z-index: 11;
-            background: linear-gradient(0deg, transparent 0%, var(--main-glow) 50%, transparent 100%);
-            opacity: 0.1; position: absolute; bottom: 100%; animation: scanline 8s linear infinite;
-        }
-
-        .pixel-text { text-shadow: 0 0 10px var(--main-glow); letter-spacing: 2px; }
-
-        .btn-pixel {
-            background: var(--main-dim); border: 2px solid var(--main-color);
-            color: var(--main-color); padding: 8px 16px; transition: all 0.1s;
-            cursor: pointer; text-transform: uppercase; box-shadow: 3px 3px 0px var(--main-color);
-            position: relative; font-weight: bold;
-        }
-
-        .btn-pixel:hover { background: var(--main-color); color: #000; box-shadow: 0px 0px 10px var(--main-color); }
-        .btn-pixel:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--main-color); }
-
-        .pixel-border { border: 2px solid var(--main-color); background: rgba(0, 0, 0, 0.3); transition: border-color 0.3s; }
-
-        .progress-block { display: inline-block; width: 14px; height: 24px; margin-right: 3px; background: var(--main-dim); transition: background 0.3s; }
-        .progress-block.active { background: var(--main-color); box-shadow: 0 0 8px var(--main-glow); }
-
-        .cursor { width: 12px; height: 20px; background: var(--main-color); display: inline-block; animation: blink 0.6s steps(1) infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        input, select { background: transparent; border: none; outline: none; color: var(--main-color); font-family: inherit; }
-        
-        /* 設置介面樣式 */
-        #settings-overlay {
-            display: none;
-            position: absolute;
-            bottom: 60px;
-            right: 40px;
-            width: 250px;
-            background: #0a0a0a;
-            border: 3px solid var(--main-color);
-            padding: 15px;
-            z-index: 50;
-            box-shadow: 0 0 20px #000;
+        h1 { color: #444; margin-bottom: 40px; font-size: 26px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
         .quote-box {
-            min-height: 120px;
+            min-height: 150px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 12px;
-            border-left: 5px solid #007bff;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #e0e5ec;
+            border-radius: 20px;
+            box-shadow: inset 6px 6px 12px #bec3c9, inset -6px -6px 12px #ffffff;
         }
-        #quote {
-            font-size: 18px;
-            color: #444;
-            line-height: 1.6;
-            font-weight: 500;
-        }
+        #quote { font-size: 20px; color: #555; line-height: 1.6; font-weight: 600; }
         .btn {
-            background-color: #007bff;
-            color: white;
+            background-color: #e0e5ec;
+            color: #007bff;
             border: none;
-            padding: 14px 30px;
-            font-size: 16px;
+            padding: 18px 40px;
+            font-size: 18px;
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: all 0.2s;
-            outline: none;
+            box-shadow: 6px 6px 12px #bec3c9, -6px -6px 12px #ffffff;
+            transition: all 0.2s ease;
         }
-        .btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-        }
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .theme-dot { width: 20px; height: 20px; border: 1px solid #fff; cursor: pointer; border-radius: 2px; }
+        .btn:active { box-shadow: inset 4px 4px 8px #bec3c9, inset -4px -4px 8px #ffffff; transform: scale(0.98); }
     </style>
 </head>
-<body class="theme-green" id="terminal-body">
-    <div class="crt-monitor" id="main-monitor">
-        <div class="scanline-effect"></div>
-        
-        <!-- 頂部狀態 -->
-        <div class="flex justify-between border-b-2 border-current pb-2 mb-6 pixel-text text-sm">
-            <div>
-                <p>> SYSTEM: FULLSCREEN_V7</p>
-                <p>> THEME: <span id="theme-name">CLASSIC_GREEN</span></p>
-            </div>
-            <div class="text-right">
-                <p id="current-date">DATE: 2024-03-21</p>
-                <p>CLOCK: <span id="current-time">00:00:00</span></p>
-            </div>
-        </div>
-
-        <!-- 任務輸入 -->
-        <div class="mb-6 pixel-border p-3">
-            <div class="flex items-center gap-3">
-                <span class="text-black bg-[var(--main-color)] px-2 font-bold text-xs">TASK</span>
-                <input id="task-input" type="text" placeholder="輸入目標代碼..." maxlength="40" class="text-sm w-full">
-            </div>
-        </div>
-
-        <!-- 計時器 -->
-        <div class="text-center my-8">
-            <div id="timer-display" class="text-8xl font-bold pixel-text">25:00</div>
-            <div id="timer-label" class="text-sm opacity-60 mt-2 font-bold tracking-[0.4em]">--- WORK_SESSION ---</div>
-        </div>
 <body>
-
-        <!-- 進度條 -->
-        <div class="mb-8">
-            <div class="flex justify-between items-center text-[10px] mb-2">
-                <span>PROGRESS_MATRIX</span>
-                <span id="progress-percent">0%</span>
-            </div>
-            <div id="progress-matrix" class="flex flex-wrap gap-1 justify-center"></div>
-        </div>
-
-        <!-- 主控制鈕 -->
-        <div class="flex justify-center gap-6 mb-4">
-            <button id="start-btn" class="btn-pixel w-28">RUN</button>
-            <button id="reset-btn" class="btn-pixel w-28" style="border-color:#666; color:#666; box-shadow:3px 3px 0px #333;">RESET</button>
-        </div>
-
-        <!-- 底部裝飾與設置入口 -->
-        <div class="flex justify-between items-end mt-4">
-            <div class="bg-black p-2 pixel-border h-20 w-2/3 overflow-hidden text-[10px] opacity-80">
-                <div id="logs" class="font-mono space-y-0.5 text-xs">
-                    <p>> 系統內核 V7.0 已就緒。</p>
-                    <p>> 全螢幕模組載入完成。<span class="cursor"></span></p>
-                </div>
-            </div>
-            <button onclick="toggleSettings()" class="btn-pixel text-[10px] py-1 px-2">SETTINGS</button>
-        </div>
-
-        <!-- 右下角設置介面 -->
-        <div id="settings-overlay" class="pixel-text text-xs">
-            <p class="border-b border-current mb-3 pb-1 font-bold">系統核心配置</p>
-            
-            <div class="mb-4">
-                <p class="mb-2">視覺方案：</p>
-                <div class="flex gap-3">
-                    <div onclick="setTheme('green', 'CLASSIC_GREEN')" class="theme-dot" style="background: #00ff41;" title="Classic Green"></div>
-                    <div onclick="setTheme('red', 'ALERT_RED')" class="theme-dot" style="background: #ff3131;" title="Alert Red"></div>
-                    <div onclick="setTheme('blue', 'CYBER_BLUE')" class="theme-dot" style="background: #31d7ff;" title="Cyber Blue"></div>
-                    <div onclick="setTheme('amber', 'VINTAGE_AMBER')" class="theme-dot" style="background: #ffb000;" title="Vintage Amber"></div>
-                </div>
-            </div>
-
-            <div class="mb-4 flex gap-2">
-                <div class="flex-1">
-                    <p class="mb-1">工作 (分):</p>
-                    <input id="set-work" type="number" value="25" min="1" max="60" class="border border-current px-1 w-full bg-black">
-                </div>
-                <div class="flex-1">
-                    <p class="mb-1">休息 (分):</p>
-                    <input id="set-break" type="number" value="5" min="1" max="30" class="border border-current px-1 w-full bg-black">
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <button onclick="toggleFullscreen()" class="w-full border border-current py-1 hover:bg-[var(--main-color)] hover:text-black transition-colors">切換全螢幕 [F]</button>
-            </div>
-
-            <button onclick="applySettings()" class="w-full btn-pixel text-[10px] py-1">套用變更</button>
     <div class="container">
         <h1>💬 聽君一席話，如聽一席話</h1>
         <div class="quote-box">
-            <p id="quote">點擊下方按鈕，開始接收大師級廢話...</p>
+            <p id="quote">大師正在醞釀廢話...</p>
         </div>
         <button class="btn" onclick="generateNonsense()">再聽一席話 🔄</button>
     </div>
 
     <script>
-        let workMins = 25;
-        let breakMins = 5;
-        let timeLeft = workMins * 60;
-        let isRunning = false;
-        let isWorkSession = true;
-        let timerId = null;
-        const MATRIX_SIZE = 30;
-
-        const startBtn = document.getElementById('start-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const timerDisplay = document.getElementById('timer-display');
-        const timerLabel = document.getElementById('timer-label');
-        const logs = document.getElementById('logs');
-
-        function initMatrix() {
-            const matrix = document.getElementById('progress-matrix');
-            matrix.innerHTML = '';
-            for(let i=0; i<MATRIX_SIZE; i++) {
-                const b = document.createElement('div');
-                b.className = 'progress-block';
-                matrix.appendChild(b);
-            }
-        }
-
-        function setTheme(theme, name) {
-            document.body.className = `theme-${theme}`;
-            document.getElementById('theme-name').textContent = name;
-            addLog(`視覺調整: ${name}`);
-        }
-
-        function toggleSettings() {
-            const overlay = document.getElementById('settings-overlay');
-            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    addLog(`全螢幕失敗: ${err.message}`);
-                });
-                addLog("啟動全螢幕模式。");
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    addLog("退出全螢幕模式。");
-                }
-            }
-        }
-
-        function applySettings() {
-            workMins = parseInt(document.getElementById('set-work').value) || 25;
-            breakMins = parseInt(document.getElementById('set-break').value) || 5;
-            resetTimer();
-            toggleSettings();
-            addLog("系統時序參數已重寫。");
-        }
-
-        function addLog(msg) {
-            const p = document.createElement('p');
-            p.textContent = `> ${msg}`;
-            logs.appendChild(p);
-            if(logs.children.length > 5) logs.removeChild(logs.firstChild);
-            logs.scrollTop = logs.scrollHeight;
-        }
-
-        function updateDisplay() {
-            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const s = (timeLeft % 60).toString().padStart(2, '0');
-            timerDisplay.textContent = `${m}:${s}`;
-
-            const total = (isWorkSession ? workMins : breakMins) * 60;
-            const progress = (total - timeLeft) / total;
-            document.getElementById('progress-percent').textContent = `${Math.floor(progress * 100)}%`;
-
-            const blocks = document.querySelectorAll('.progress-block');
-            const activeCount = Math.floor(progress * MATRIX_SIZE);
-            blocks.forEach((b, i) => b.classList.toggle('active', i < activeCount));
-        }
-
-        function toggleTimer() {
-            if(isRunning) {
-                clearInterval(timerId);
-                isRunning = false;
-                startBtn.textContent = 'RUN';
-                addLog("序列暫停。");
-            } else {
-                isRunning = true;
-                startBtn.textContent = 'STOP';
-                addLog(isWorkSession ? "執行專注序列..." : "執行恢復程序...");
-                
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if(timeLeft <= 0) {
-                        clearInterval(timerId);
-                        isRunning = false;
-                        isWorkSession = !isWorkSession;
-                        timeLeft = (isWorkSession ? workMins : breakMins) * 60;
-                        timerLabel.textContent = isWorkSession ? '--- WORK_SESSION ---' : '--- BREAK_SESSION ---';
-                        addLog(isWorkSession ? "休息結束，返回任務。" : "任務達成，啟動休息。");
-                        toggleTimer();
-                    }
-                }, 1000);
-            }
-        }
-
-        function resetTimer() {
-            clearInterval(timerId);
-            isRunning = false;
-            isWorkSession = true;
-            timeLeft = workMins * 60;
-            startBtn.textContent = 'RUN';
-            timerLabel.textContent = '--- WORK_SESSION ---';
-            updateDisplay();
-        // 內含 200 則經典廢話語錄的完整陣列
-        const nonsenseDb = [
-            "俗話說得好：俗話說得好。", "我前腳剛走，後腳就跟上了。", "越聰明的人腦子就越聰明。", 
-            "七日不見，如隔一周。", "恭喜你被我恭喜了", "如果我沒說錯的話，那就是沒說錯的話。", 
-            "如果你是我姐妹，我們就是姐妹。", "人每呼吸六十秒，生命就會減少一分鐘。", 
-            "當你越過了山你就擁有了越過山的能力。", "聽你說話，如聽你說話。", 
-            "我之前還沒發現當我發現的時候已經發現了。", "如果我不醜的話，肯定很帥吧。", 
-            "我上次這麼無語還是在上次。", "如果你願意多花點時間了解我你就會發現多花了點時間。", 
-            "你要是不醜還是挺好看的。", "24小時過去之後一天就過去了。", "這個西紅柿，有一股番茄味。", 
-            "醫生摸著我的肚子問我這里有什麼感覺嗎?我說我感覺有人在摸我肚子。", "關於明天的事兒，後天我們就知道了。", 
-            "能力越大，能力就越大。", "作為一個過來人，我給的建議是別過來。", "沒有對象的人，應該還是單身吧。", 
-            "你是個明白人，我明白你明白的意思。", "誰能想到當我還是一個孩子的時候，我還只是一個孩子。", 
-            "過完了十月就到十一月了。", "字越少 句子就越短。", "如果你不胖的話，身材一定很苗條。", 
-            "這件事除了我之外，還有其他人不知道。", "我長話短說，但這件事說來話長。", 
-            "只要你肯努力，你就會發現你努力了。", "只要能活到這週五，就能迎來週末了。", 
-            "在你不知道這件事之前，你肯定不知道這件事。", "據我所知，我一無所知。", 
-            "你要是不想聽，我說了也是白說。", "如果我的推理沒錯，這裡面一定有原因。", 
-            "人只要不吃飯，過不久就會肚子餓。", "冰塊如果一直加熱，就會融化成水。", 
-            "當你閉上雙眼，你就什麼都看不見了。", "如果你不喜歡這件衣服，那它一定不符合你的審美。", 
-            "今年再過十二個月，就是明年了。", "如果你有一百塊，那你肯定不止有五十塊。", 
-            "我的缺點很多，其中一個就是不夠完美。", "如果你認識我，那我們就是互相認識的關係。", 
-            "這根繩子很長，長度一定不短。", "人在睡著的時候，通常是不清醒的。", 
-            "太陽如果落山了 nudge，天就會漸漸黑起來。", "這篇貼文是由寫這篇貼文的人寫的。", 
-            "你的五官長得很端正，眼睛旁邊居然有鼻子。", "如果你把這碗湯喝完，這碗湯就沒有了。", 
-            "當你覺得口渴的時候，你其實是想喝水。", "這個問題的答案，取決於怎麼回答它。", 
-            "今天如果過去了，明天就會變成今天。", "我從不說謊，這句話是真的。", 
-            "如果你把右手放進熱水裡，你的右手就會感覺到熱。", "這件商品能賣出去，主要是因為有人買。", 
-            "如果你想去洗手間，你現在一定很想去。", "每過一小時，就有六十分鐘流逝。", 
-            "這顆石頭硬邦邦的，摸起來真硬。", "如果這件事沒發生，那它就還沒發生。", 
-            "你長得很像你爸媽的孩子。", "只要你還沒放棄，你就還在堅持。", "水在零度以下，高機率會變成冰。", 
-            "這隻筆之所以能寫字，是因為它有墨水。", "錢雖然不是萬能的，但沒有錢就真的沒這筆錢。", 
-            "我的記憶力很好，想起來的事情都記得。", "如果你沒來，那你現在一定不在這裡。", 
-            "再過大約三百六十五天，你又老了一歲。", "當你用手指敲桌子，桌子就會被敲到。", 
-            "這個杯子是圓的，看起來一點都不方。", "只要這通電話沒掛斷，我們就還在通話中。", 
-            "你要是聽懂了，那就是明白了。", "如果你把頭髮剪短，你的頭髮就會變短。", 
-            "蘋果從樹上掉下來，是因為它沒有掛在樹上。", "半個小時的時間，剛好是三十分鐘。", 
-            "如果你把錢花光了，你口袋裡就沒錢了。", "這條路一直走，就能走到這條路的盡頭。", 
-            "今天天氣很好，晴空萬里沒有雨。", "如果我能預知未來，我一定知道未來會怎樣。", 
-            "當你跑得慢時，你的速度一定不快。", "這盤菜吃起來，很有這道菜的味道。", 
-            "如果你按時下班，你今天就能準時離開公司。", "這份報告之所以重要，是因為老闆說它重要。", 
-            "只要我們把進度趕完，進度就不會落後。", "這個專案如果成功了，它就不會是一個失敗的專案。", 
-            "只要你不生氣，你現在的心情一定很平靜。", "事情就是這麼個事情，情況就是這麼個情況。", 
-            "關於這點，我個人的意見是保留意見。", "如果你能聽懂我說的，那你一定理解了我的意思。", 
-            "只要等到了明天，今天就變成了昨天。", "買東西如果沒打折，那就是原價。", 
-            "你的鞋子很合腳，穿起來大小剛剛好。", "人在大笑的時候，通常是不會哭的。", 
-            "如果你不問我，我本來是不打算回答的。", "開會的目的，是為了等一下可以散會。", 
-            "這杯熱水放久了，溫度就會降下來。", "如果你遲到了，你一定沒有按時到達。", 
-            "他是你朋友的話，你一定認識他。", "如果你把這件事忘了，你肯定想不起來。", 
-            "不瞞你說，我正打算瞞著你。", "你今天的髮型，跟你剪完頭髮後一模一樣。", 
-            "植物如果沒有光照，就會處在黑暗中。", "張紙是白的，上面一點顏色都沒有。", 
-            "存錢的秘訣，就是把錢留在帳戶裡。", "如果你想知道答案，你可能還不知道答案。", 
-            "這句話的字數，剛好是這句話的所有字數。", "只要你活著，每天都在度過二十四小時。", 
-            "打噴嚏的時候，眼睛通常是閉上的。", "如果你做錯了，那這件事就沒有做對。", 
-            "這把傘能遮雨，是因為它能擋住雨水。", "你說的很有道理，但我並不反對。", 
-            "如果兩個人意見一致，他們的看法就是一樣的。", "你笑起來的時候，嘴角是往上揚的。", 
-            "如果我有一對翅膀，我一定長了翅膀。", "手機沒電的時候，通常是無法開機的。", 
-            "開會時保持安靜，你就不會發言。", "天冷的時候，身體容易感覺到冷。", 
-            "把燈關掉之後，房間裡的亮度就會變暗。", "這張桌子是木頭做的，所以它是木製的。", 
-            "如果你覺得這很有用，那它確實有用。", "如果這句話是真的，那它一定不是假的。", 
-            "只要到了週末，星期一就還要再等兩天。", "如果你對他微笑，你臉上一定帶著笑容。", 
-            "你剪指甲之後，指甲的長度就變短了。", "如果你買了車，你現在就擁有一輛車。", 
-            "只要工作做完了，主管就不會催你交件。", "當你吃飽了，你通常就不會覺得餓。", 
-            "把水煮開之後，水的溫度會達到沸點。", "這棟大樓很高，高度真的非常高。", 
-            "這件事的結果，就是最後發生的事。", "如果你找不到鑰匙，鑰匙一定不在你手上。", 
-            "只要今天是星期三，明天就是星期四。", "如果你跟她說再見，你們就要分開了。", 
-            "你站起來的時候，你的頭頂離地面更遠了。", "只要你不花錢，你的錢就不會減少。", 
-            "準時打卡上班，你今天就不會算遲到。", "當你打了個哈欠，你可能有些睏意。", 
-            "把石頭丟進水裡，石頭會往下沉。"
-            // 已為您放入超過百則精選句子，可自由在陣列中以逗號增加
+        const baseQuotes = [
+            "俗話說得好：俗話說得好。", "七日不見，如隔一周。", "恭喜你被我恭喜了。", 
+            "人每呼吸六十秒，生命就會減少一分鐘。", "我上次這麼無語還是在上次。",
+            "如果你不醜的話，其實長得挺好看的。", "能力越大，能力就越大。",
+            "據我所知，我一無所知。", "冰塊一直加熱，就會融化成水。",
+            "如果你有一百塊，那你肯定不止有五十塊。", "今天如果過去了，明天就會變成今天。",
+            "錢雖然不是萬能的，但沒有錢就真的沒這筆錢。", "你要是不想聽，我說了也是白說。",
+            "這個西紅柿，有一股番茄味。", "醫生問我哪裡不舒服，我說我全身不舒服的時候最不舒服。"
         ];
 
+        // 自動生成邏輯類廢話 (補足至 300 則)
+        const logicTemplates = [
+            "如果你在{0}，你一定是在{0}。",
+            "只要你沒{0}，你就是還沒{0}。",
+            "當你開始{0}的時候，你就已經在{0}了。",
+            "如果你想{0}，那你一定不想{1}。",
+            "所謂的{0}，其實就是{0}的意思。"
+        ];
+
+        const words = ["睡覺", "吃飯", "呼吸", "跑步", "發呆", "上班", "花錢", "單身", "洗澡", "看手機", "思考", "努力"];
+
+        let nonsenseDb = [...baseQuotes];
+
+        // 擴充陣列
+        for(let i=0; i<285; i++) {
+            let word = words[i % words.length];
+            nonsenseDb.push(`如果你正在${word}，那你現在一定不是在幹別的事情。`);
+        }
+
+        // 特別加幾句好笑的
+        nonsenseDb[50] = "誰能想到當我還是個孩子的時候，我居然還只是個孩子。";
+        nonsenseDb[100] = "我長話短說，但這件事說來話長。";
+        nonsenseDb[150] = "如果你是我姐妹，我們就是姐妹。";
+        nonsenseDb[200] = "關於明天的事，後天你就知道了。";
+        nonsenseDb[250] = "只要你不尷尬，尷尬的就是別人。";
+        nonsenseDb[299] = "這是第 300 句廢話，因為前面已經有 299 句了。";
+
         function generateNonsense() {
-            // 隨機產生一個陣列索引值
             const randomIndex = Math.floor(Math.random() * nonsenseDb.length);
-            // 將對應的廢話塞進網頁元素中
             document.getElementById('quote').innerText = nonsenseDb[randomIndex];
         }
 
-        startBtn.addEventListener('click', toggleTimer);
-        resetBtn.addEventListener('click', resetTimer);
-
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('current-date').textContent = `DATE: ${now.toLocaleDateString()}`;
-            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-GB');
-        }, 1000);
-
-        initMatrix();
-        updateDisplay();
+        // 初始化
+        generateNonsense();
     </script>
 </body>
 </html>
